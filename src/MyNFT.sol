@@ -30,3 +30,32 @@ contract MyNFT is Initializable, ERC721Upgradeable, OwnableUpgradeable, UUPSUpgr
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
 }
+
+// import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+// import "@openzeppelin/contracts/access/Ownable.sol";
+// import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+//
+// contract MyNFT is Initializable, ERC721, Ownable {
+//     // State variables
+//     uint256 _tokenId;
+//     address _owner;
+//
+//     function initialize() public {
+//         __ERC721_init("MyNFT", "MNFT");
+//         __Ownable_init();
+//     }
+//     // Errors
+//
+//     error NotOwner();
+//
+//     function safeMint(address to) external onlyOwner {
+//         if (msg.sender != _owner) {
+//             revert NotOwner();
+//         }
+//
+//         _tokenId = _tokenId++;
+//         _safeMint(to, _tokenId);
+//     }
+//
+//     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
+// }
