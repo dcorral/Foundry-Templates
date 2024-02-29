@@ -1,0 +1,24 @@
+#!/bin/sh
+RED='\033[0;31m'
+
+echo "Running Forge build before commit..."
+forge build
+sh $PWD/contrib/package_abis.sh
+
+
+# Check if forge build was successful
+if [ $? -ne 0 ]; then
+  echo -e "${RED}Forge build failed. Aborting commit."
+  exit 1
+fi
+
+# Check if there are any unstaged changes in the out directory (default for forge build artifacts)
+if git diff --quiet -- packaged_abis; then
+    echo "Build successful. No changes in contracts."
+else
+    echo -e "${RED}Contract ABI or bytecode changes detected! Please add them to your commit."
+    exit 1
+fi
+
+echo "Proceeding with commit."
+
