@@ -7,10 +7,11 @@ import "../src/MyNFT.sol";
 contract Deploy is Script {
     MyNFT co;
     function run() public {
-        uint256 pk = vm.envUint("DEV_PRIVATE_KEY");
+        uint256 sysAdminPK = vm.envUint("DEV_PRIVATE_KEY");
+        address sysAdminAddress = vm.addr(sysAdminPK);
 
-        vm.startBroadcast(pk);
-        co = new MyNFT();
+        vm.startBroadcast(sysAdminPK);
+        co = new MyNFT(sysAdminAddress);
         vm.stopBroadcast();
     }
 }
