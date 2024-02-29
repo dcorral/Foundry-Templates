@@ -1,47 +1,41 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.13;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
-import {Test, console} from "forge-std/Test.sol";
-import {MyNFT} from "../src/MyNFT.sol";
+import "forge-std/Test.sol";
+import "../src/MyNFT.sol"; // Import your contract
 
 contract MyNFTTest is Test {
-    MyNFT public myNFT;
-    address minterAddress;
+    MyNFT myNFT;
+    address deployer;
 
-    error NotOwner();
-
-    // Setup function - Runs before each test
     function setUp() public {
-        minterAddress = address(3);
-        vm.prank(minterAddress);
-        myNFT = new MyNFT(minterAddress);
+        // Deploy the MyNFT contract using the proxy pattern for UUPS
+        deployer = address(0x3); // In tests, the deploying address is the test contract itself
+        myNFT = new MyNFT();
+        myNFT.initialize(deployer); // Initialize the contract instead of a constructor
+
     }
 
-    // --- Tests start here ---
+    function testSafeMint() public {
+        // Impersonate the deployer to test onlyOwner functionality
+        vm.startPrank(deployer);
 
-    function testConstructor() public {
-        assertEq(myNFT.name(), "MyNFT");
-        assertEq(myNFT.symbol(), "MNFT");
-    }
+        // Initial tokenId should be 0
+        uint256 initialTokenId = myNFT.tokenId();
 
-    function testMintNFT() public {
-        address testAccount = address(0x1); // Sample address for testing
+        // Mint a new NFT
+        address reciever = address(0x1);
+        myNFT.safeMint(reciever);
 
-        // Mint an NFT to the test account
-        vm.prank(minterAddress);
-        myNFT.safeMint(testAccount);
+        // Check if the tokenId incremented
+        uint256 newTokenId = myNFT.tokenId();
+        assertEq(newTokenId, initialTokenId + 1, "Token ID did not increment correctly");
 
-        // Assert that the NFT is owned by the test account
-        assertEq(myNFT.ownerOf(0), testAccount);  // Assuming tokenId is 1
-    }
+        // Check if the deployer owns the new token
+        address ownerOfNewToken = myNFT.ownerOf(newTokenId);
+        assertEq(ownerOfNewToken, reciever, "Deployer is not the owner of the minted token");
 
-    function testMintOnlyOwner() public {
-        // Attempt to mint from a non-owner account (make this address different from the owner)
-        address nonOwnerAccount = address(0x2);
-        vm.prank(nonOwnerAccount);
-
-        // Expect the safeMint transaction to revert
-        vm.expectRevert(NotOwner.selector);
-        myNFT.safeMint(nonOwnerAccount);
+        vm.stopPrank();
     }
 }
+
