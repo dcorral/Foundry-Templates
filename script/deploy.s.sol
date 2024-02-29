@@ -11,7 +11,8 @@ contract Deploy is Script {
         address sysAdminAddress = vm.addr(sysAdminPK);
 
         vm.startBroadcast(sysAdminPK);
-        co = new MyNFT(sysAdminAddress);
+        co = new MyNFT();
+        co.initialize(sysAdminAddress);
         vm.stopBroadcast();
     }
 }
