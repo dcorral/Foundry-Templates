@@ -1,19 +1,17 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity 0.8.20;
 
 import "forge-std/Test.sol";
-import "../src/MyNFT.sol"; // Import your contract
+import "../src/MyNFT.sol";
 
 contract MyNFTTest is Test {
     MyNFT myNFT;
     address deployer;
 
     function setUp() public {
-        // Deploy the MyNFT contract using the proxy pattern for UUPS
-        deployer = address(0x3); // In tests, the deploying address is the test contract itself
+        deployer = address(0x3);
         myNFT = new MyNFT();
-        myNFT.initialize(deployer); // Initialize the contract instead of a constructor
-
+        myNFT.initialize(deployer);
     }
 
     function testSafeMint() public {
