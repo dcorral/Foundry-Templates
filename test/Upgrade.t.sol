@@ -34,14 +34,16 @@ contract Upgrade is Test {
         // Upgrade
         Upgrades.upgradeProxy(proxyAddress, "MyNFTV2.sol", "");
         console.log("Upgraded Proxy Address:", proxyAddress);
+        myNFTv2 = MyNFTV2(proxyAddress);
 
-        tokenId = myNFT.tokenId();
+        tokenId = myNFTv2.tokenId();
         assertEq(tokenId, 1);
+        assertEq(myNFTv2.ownerOf(1) , address(1));
 
-        myNFT.safeMint(address(1));
-        assertEq(myNFT.ownerOf(myNFT.tokenId()), address(1));
+        myNFTv2.safeMintV2(address(1));
+        assertEq(myNFTv2.ownerOf(myNFTv2.tokenId()), address(1));
 
-        tokenId = myNFT.tokenId();
+        tokenId = myNFTv2.tokenId();
         assertEq(tokenId, 3);
 
         vm.stopPrank();
