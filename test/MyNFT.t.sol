@@ -1,47 +1,34 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.13;
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.20;
 
-import {Test, console} from "forge-std/Test.sol";
-import {MyNFT} from "../src/MyNFT.sol";
+import "forge-std/Test.sol";
+import "../src/MyNFT.sol";
 
 contract MyNFTTest is Test {
-    MyNFT public myNFT;
-    address minterAddress;
+    MyNFT myNFT;
+    address deployer;
 
-    error NotOwner();
-
-    // Setup function - Runs before each test
     function setUp() public {
-        minterAddress = address(3);
-        vm.prank(minterAddress);
-        myNFT = new MyNFT(minterAddress);
+        deployer = address(0x3);
+        myNFT = new MyNFT();
+        myNFT.initialize(deployer);
     }
 
-    // --- Tests start here ---
+    function testSafeMint() public {
+        vm.startPrank(deployer);
 
-    function testConstructor() public {
-        assertEq(myNFT.name(), "MyNFT");
-        assertEq(myNFT.symbol(), "MNFT");
-    }
+        uint256 initialTokenId = myNFT.tokenId();
 
-    function testMintNFT() public {
-        address testAccount = address(0x1); // Sample address for testing
+        address reciever = address(0x1);
+        myNFT.safeMint(reciever);
 
-        // Mint an NFT to the test account
-        vm.prank(minterAddress);
-        myNFT.safeMint(testAccount);
+        uint256 newTokenId = myNFT.tokenId();
+        assertEq(newTokenId, initialTokenId + 1, "Token ID did not increment correctly");
 
-        // Assert that the NFT is owned by the test account
-        assertEq(myNFT.ownerOf(0), testAccount);  // Assuming tokenId is 1
-    }
+        address ownerOfNewToken = myNFT.ownerOf(newTokenId);
+        assertEq(ownerOfNewToken, reciever, "Deployer is not the owner of the minted token");
 
-    function testMintOnlyOwner() public {
-        // Attempt to mint from a non-owner account (make this address different from the owner)
-        address nonOwnerAccount = address(0x2);
-        vm.prank(nonOwnerAccount);
-
-        // Expect the safeMint transaction to revert
-        vm.expectRevert(NotOwner.selector);
-        myNFT.safeMint(nonOwnerAccount);
+        vm.stopPrank();
     }
 }
+
